@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using petshop.Models;
+using petshop.Services;
 
 namespace petshop.Controllers
 {
@@ -13,6 +14,12 @@ namespace petshop.Controllers
   [Route("/api/[controller]")]
   public class CatsController : ControllerBase
   {
+    private readonly CatsService _catsService;
+    // Required Service to struct (Dependency Injection)
+    public CatsController(CatsService catsService)
+    {
+      _catsService = catsService;
+    }
 
 
     // GetAll through GET request
@@ -23,8 +30,9 @@ namespace petshop.Controllers
     {
       try
       {
+        IEnumerable<Cat> cats = _catsService.Get();
         // Ok is the HTTPResponse: 200 ok
-        return Ok(FakeDB.Cats);
+        return Ok(cats);
       }
       catch (Exception err)
       {
@@ -33,17 +41,15 @@ namespace petshop.Controllers
       }
     }
 
+
+    // '/:id' : "{id}"
     [HttpGet("{id}")]
     // req.params.id : value caputured in parameters
     public ActionResult<Cat> Get(string id)
     {
       try
       {
-        Cat found = FakeDB.Cats.Find(c => c.Id == id);
-        if (found == null)
-        {
-          throw new Exception("Invalid Id");
-        }
+        Cat found = _catsService.Get(id);
         return Ok(found);
       }
       catch (Exception err)
@@ -59,8 +65,8 @@ namespace petshop.Controllers
     {
       try
       {
-        FakeDB.Cats.Add(newCat);
-        return Ok(newCat);
+        Cat cat = _catsService.Create(newCat);
+        return Ok(cat);
       }
       catch (Exception err)
       {
@@ -74,12 +80,8 @@ namespace petshop.Controllers
       try
       {
         // this is later handled in the actual DB
-        int deleted = FakeDB.Cats.RemoveAll(c => c.Id == id);
-        if (deleted == 0)
-        {
-          throw new Exception("Invalid Id");
-        }
-        return Ok("Successfully Deleted Cat");
+        _catsService.Delete(id);
+        return Ok("Successfully Adopted out Cat");
       }
       catch (Exception err)
       {

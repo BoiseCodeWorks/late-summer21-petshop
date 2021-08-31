@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using petshop.Services;
 
 namespace petshop
 {
@@ -30,7 +31,7 @@ namespace petshop
       services.AddControllers();
 
       // REGISTER TRANSIENT SERVICES
-
+      services.AddTransient<CatsService>();
 
       services.AddSwaggerGen(c =>
       {
